@@ -53,6 +53,16 @@ public class Router extends Device
 	}
 	
 	/**
+	 * Start RIP on the router when no table in provided
+	 */
+	public void startRip()
+	{
+		// TODO: initialize RIP — populate route table with directly connected
+		// subnets, send RIP requests out all interfaces, and start the periodic
+		// update/timeout threads.
+	}
+
+	/**
 	 * Load a new ARP cache from a file.
 	 * @param arpCacheFile the name of the file containing the ARP cache
 	 */
@@ -129,6 +139,10 @@ public class Router extends Device
 			etherPacket.setSourceMACAddress(match.getInterface().getMacAddress().toBytes());
 
 			ipPacket.resetChecksum();
+
+			if (this.routeTable.lookup(ipPacket.getDestinationAddress()).getInterface() == inIface){
+				return;
+			}
 
 			this.sendPacket(etherPacket, match.getInterface());
 		}

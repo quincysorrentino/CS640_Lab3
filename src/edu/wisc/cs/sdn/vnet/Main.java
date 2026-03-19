@@ -83,12 +83,15 @@ public class Main
 		{ System.exit(1); }
 		vnsComm.readFromServerExpect(Command.VNS_HW_INFO);	
 		
-		if (dev instanceof Router) 
+		if (dev instanceof Router)
 		{
-			// Read static route table
+			// Read static route table, or start RIP if none provided
 			if (routeTableFile != null)
 			{ ((Router)dev).loadRouteTable(routeTableFile); }
-			
+			else
+			// start RIP instead
+			{ ((Router)dev).startRip(); }
+
 			// Read static ACP cache
 			if (arpCacheFile != null)
 			{ ((Router)dev).loadArpCache(arpCacheFile); }
