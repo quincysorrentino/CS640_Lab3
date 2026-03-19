@@ -1,8 +1,9 @@
-# Compiled class file
+# Compiled class files
 *.class
 
-# Log file
+# Log files
 *.log
+nohup.out
 
 # BlueJ files
 *.ctxt
@@ -10,7 +11,7 @@
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
 
-# Package Files #
+# Package Files
 *.jar
 *.war
 *.nar
@@ -18,7 +19,22 @@
 *.zip
 *.tar.gz
 *.rar
+*.tgz
 
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
+# Virtual machine crash logs
 hs_err_pid*
 replay_pid*
+
+# Eclipse IDE
+.classpath
+.project
+.settings/
+
+# Compiled output
+bin/
+
+# Python
+*.pyc
+*.pyo
+__pycache__/
+*.egg-info/
