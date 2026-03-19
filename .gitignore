@@ -1,0 +1,37 @@
+# Java compiled output
+*.class
+bin/
+
+# Java archives (dependency JARs should be managed via build tools)
+*.jar
+*.war
+*.ear
+*.nar
+
+# Python compiled files
+*.pyc
+*.pyo
+__pycache__/
+*.egg-info/
+
+# Archives / submission tarballs
+*.zip
+*.tar.gz
+*.tgz
+*.rar
+
+# Logs
+*.log
+nohup.out
+
+# Eclipse IDE files
+.classpath
+.project
+.settings/
+
+# BlueJ
+*.ctxt
+
+# JVM crash logs
+hs_err_pid*
+replay_pid*
