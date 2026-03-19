@@ -11,32 +11,44 @@ public class RouteEntry
 {
 	/** Destination IP address */
 	private int destinationAddress;
-	
+
 	/** Gateway IP address */
 	private int gatewayAddress;
-	
+
 	/** Subnet mask */
 	private int maskAddress;
-	
+
 	/** Router interface out which packets should be sent to reach
 	 * the destination or gateway */
 	private Iface iface;
-	
+
+	/** RIP distance-vector metric (hop count) */
+	private int metric;
+
+	/** Time (ms since epoch) when this entry was last updated by RIP */
+	private long lastUpdated;
+
 	/**
-	 * Create a new route table entry.
-	 * @param destinationAddress destination IP address
-	 * @param gatewayAddress gateway IP address
-	 * @param maskAddress subnet mask
-	 * @param iface the router interface out which packets should 
-	 *        be sent to reach the destination or gateway
+	 * Create a new route table entry with default metric of 1.
 	 */
-	public RouteEntry(int destinationAddress, int gatewayAddress, 
+	public RouteEntry(int destinationAddress, int gatewayAddress,
 			int maskAddress, Iface iface)
+	{
+		this(destinationAddress, gatewayAddress, maskAddress, iface, 1);
+	}
+
+	/**
+	 * Create a new route table entry with a specified metric.
+	 */
+	public RouteEntry(int destinationAddress, int gatewayAddress,
+			int maskAddress, Iface iface, int metric)
 	{
 		this.destinationAddress = destinationAddress;
 		this.gatewayAddress = gatewayAddress;
 		this.maskAddress = maskAddress;
 		this.iface = iface;
+		this.metric = metric;
+		this.lastUpdated = System.currentTimeMillis();
 	}
 	
 	/**
@@ -69,7 +81,19 @@ public class RouteEntry
 
 	public void setInterface(Iface iface)
 	{ this.iface = iface; }
-	
+
+	public int getMetric()
+	{ return this.metric; }
+
+	public void setMetric(int metric)
+	{ this.metric = metric; }
+
+	public long getLastUpdated()
+	{ return this.lastUpdated; }
+
+	public void setLastUpdated(long lastUpdated)
+	{ this.lastUpdated = lastUpdated; }
+
 	public String toString()
 	{
 		return String.format("%s \t%s \t%s \t%s",
