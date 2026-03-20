@@ -132,6 +132,11 @@ public class Router extends Device
 			}
 		}
 
+		else
+		{
+			rip.addEntry(new RIPv2Entry(0, 0, 16));
+		}
+
 		// UDP wrapper
 		UDP udp = new UDP();
 		udp.setSourcePort(UDP.RIP_PORT);
