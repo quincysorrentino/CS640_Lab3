@@ -65,24 +65,21 @@ public class Router extends Device
 
 	/**
 	 * Start RIP on the router when no static route table is provided.
-	 * Populates directly-connected routes, sends an initial RIP request out
-	 * every interface, then sends unsolicited RIP responses every 10 seconds.
-	 * Also starts the 30-second route-timeout sweep.
 	 */
 	public void startRip()
 	{
-		// Add directly-connected subnet routes (metric 1, no gateway)
+		// Add directly-connected subnet routes
 		for (Iface iface : this.interfaces.values())
 		{
 			int subnet = iface.getIpAddress() & iface.getSubnetMask();
 			this.routeTable.insert(subnet, 0, iface.getSubnetMask(), iface, 1);
 		}
 
-		// Send a RIP request out every interface
+		// Send a RIP request on every interface
 		for (Iface iface : this.interfaces.values())
 		{ sendRipPacket(RIPv2.COMMAND_REQUEST, iface, RIP_MULTICAST_IP, BROADCAST_MAC); }
 
-		// Every 10 seconds send an unsolicited RIP response out every interface
+		// Every 10 seconds send RIP response out every interface
 		Timer ripTimer = new Timer(true);
 		ripTimer.scheduleAtFixedRate(new TimerTask() {
 			@Override public void run()
@@ -92,7 +89,7 @@ public class Router extends Device
 			}
 		}, 10000, 10000);
 
-		// Every second, expire learned routes that haven't been refreshed in 30 s
+		// Every second, expire learned routes that haven't been refreshed in 30 seconds
 		Timer timeoutTimer = new Timer(true);
 		timeoutTimer.scheduleAtFixedRate(new TimerTask() {
 			@Override public void run()
@@ -100,7 +97,6 @@ public class Router extends Device
 				long now = System.currentTimeMillis();
 				for (RouteEntry entry : routeTable.getEntries())
 				{
-					// Never remove directly-connected routes (gateway == 0)
 					if (entry.getGatewayAddress() == 0) { continue; }
 					if (now - entry.getLastUpdated() > RIP_TIMEOUT_MS)
 					{ routeTable.remove(entry.getDestinationAddress(), entry.getMaskAddress()); }
@@ -118,7 +114,6 @@ public class Router extends Device
 	 */
 	private void sendRipPacket(byte command, Iface outIface, int dstIp, byte[] dstMac)
 	{
-		// RIPv2 payload
 		RIPv2 rip = new RIPv2();
 		rip.setCommand(command);
 		if (command == RIPv2.COMMAND_RESPONSE)
@@ -137,13 +132,11 @@ public class Router extends Device
 			rip.addEntry(new RIPv2Entry(0, 0, 16));
 		}
 
-		// UDP wrapper
 		UDP udp = new UDP();
 		udp.setSourcePort(UDP.RIP_PORT);
 		udp.setDestinationPort(UDP.RIP_PORT);
 		udp.setPayload(rip);
 
-		// IPv4 wrapper
 		IPv4 ip = new IPv4();
 		ip.setSourceAddress(outIface.getIpAddress());
 		ip.setDestinationAddress(dstIp);
@@ -151,7 +144,6 @@ public class Router extends Device
 		ip.setTtl((byte)64);
 		ip.setPayload(udp);
 
-		// Ethernet wrapper
 		Ethernet ether = new Ethernet();
 		ether.setEtherType((short)0x0800);
 		ether.setSourceMACAddress(outIface.getMacAddress().toBytes());
@@ -163,7 +155,6 @@ public class Router extends Device
 
 	/**
 	 * Process an incoming RIPv2 packet.
-	 * Requests get a unicast response; responses update the route table.
 	 */
 	private void handleRipPacket(Ethernet etherPacket, IPv4 ipPacket,
 			UDP udpPacket, Iface inIface)
@@ -187,7 +178,7 @@ public class Router extends Device
 				int mask    = entry.getSubnetMask();
 				int newMetric = Math.min(entry.getMetric() + 1, 16);
 
-				// Metric 16 means unreachable — skip
+				// 16 means unreachable
 				if (newMetric >= 16) { continue; }
 
 				// Find if we already have an exact route for this prefix
@@ -200,7 +191,7 @@ public class Router extends Device
 
 				if (existing == null)
 				{
-					// New route — insert it
+					// Insert new route
 					this.routeTable.insert(dst, srcIp, mask, inIface, newMetric);
 				}
 				else if (newMetric < existing.getMetric()
